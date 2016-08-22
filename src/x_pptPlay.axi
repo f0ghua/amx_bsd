@@ -121,6 +121,7 @@ integer btnPPTPlayFileList[] = {
     1371, 1372, 1373, 1374, 1375, 1376, 1377, 1378
 }
 
+
 (***********************************************************)
 (*               LATCHING DEFINITIONS GO BELOW             *)
 (***********************************************************)
@@ -134,6 +135,7 @@ DEFINE_MUTUALLY_EXCLUSIVE
 (*        SUBROUTINE/FUNCTION DEFINITIONS GO BELOW         *)
 (***********************************************************)
 //#include 'x_chineseCode.axi'
+#include 'UnicodeLib.axi'
 
 define_function integer fnGetPPTPlayDeviceIndex()
 {
@@ -170,10 +172,37 @@ define_function integer pptPlay_CmdOpenAllFiles()
     }
 }
 
+define_function char[128] string_replace(char a[],
+        char search[], char replace[])
+{
+    stack_var integer start
+    stack_var integer end
+    stack_var char ret[128]
+
+    if (LENGTH_STRING(a) > 128) {
+        return '';
+    }
+
+    start = 1
+    end = FIND_STRING(a, search, start)
+
+    while (end) {
+        ret = "ret, MID_STRING(a, start, end - start), replace"
+        start = end + LENGTH_STRING(search)
+        end = FIND_STRING(a, search, start)
+    }
+
+    ret = "ret, RIGHT_STRING(a, LENGTH_STRING(a) - start + 1)"
+
+    return ret
+}
+
 // List Table Port 1: List Table Addr 1
 define_function fnUpdateFileListTable(_sCMD_PARAMETERS uParameters)
 {
     stack_var integer i
+
+    send_string 0, 'call fnUpdateFileListTable'
 
     // Deletes any existing data list at address 1
     send_command gDvTps, "'^LDD-1'"
@@ -189,9 +218,16 @@ define_function fnUpdateFileListTable(_sCMD_PARAMETERS uParameters)
     // Adds rows to the data list...
     for (i = 1; i <= uParameters.count; i++)
     {
+        // convert the str to unicode before send
+        //stack_var widechar wStr[256];
+        //stack_var char cStr[256];
+
+        //wStr = WC_DECODE(string_replace(uParameters.param[i], '$', ''), WC_FORMAT_UTF8, 1);
+        //cStr = WC_ENCODE(wStr, WC_FORMAT_TP, 1);
+
         // "'^LDA-<list address>,<uniflag>,<primary data>,<data2>…'"
         send_command gDvTps, "'^LDA-1,0,', ITOA(i), ',', uParameters.param[i],
-                ',', '"', '1,', ITOA(1380+i), '"'"
+                ',', '"', '1,', ITOA(1370+i), '"'"
     }
 
     send_command gDvTps, "'^LVU-1'"
@@ -389,6 +425,28 @@ BUTTON_EVENT[gDvTPs, btnPPTPlayControl]
         }
     }
 }
+
+BUTTON_EVENT[gDvTPs, btnPPTPlayFileList]
+{
+    PUSH:
+    {
+        stack_var integer btnIdx, dvIdx, nFile;
+
+        btnIdx = GET_LAST(btnPPTPlayFileList)
+
+        dvIdx = btnIdx/8 + 1; // max 8 files
+        send_string 0, "'vdvPPTPlay', ITOA(dvIdx), ' btnIdx = ', ITOA(btnIdx)"
+
+        if (dvIdx)
+        {
+            nFile = (btnIdx MOD (dvIdx*8))
+            send_string 0, "'vdvPPTPlay', ITOA(dvIdx), ' File idx = ', ITOA(nFile)"
+            send_command pptPlayDevices[dvIdx], 'PPT_CLOSE'
+            send_command pptPlayDevices[dvIdx], "'PPT_OPEN=', ITOA(nFile)"
+        }
+    }
+}
+
 
 (***********************************************************)
 (*            THE ACTUAL PROGRAM GOES BELOW                *)

@@ -20,7 +20,7 @@ CMDAPI_MAX_PARAM_NUM   = 8
 #END_IF
 
 #IF_NOT_DEFINED CMDAPI_MAX_PARAM_LEN
-CMDAPI_MAX_PARAM_LEN   = 32
+CMDAPI_MAX_PARAM_LEN   = 64
 #END_IF
 
 #IF_NOT_DEFINED CMDAPI_MAX_DATA_LEN
@@ -111,7 +111,7 @@ define_function integer cmdapi_ParseCommand(char cmd[], char separator[],
                                char name[], _sCMD_PARAMETERS params)
 {
     stack_var char p        // use character to save space
-    stack_var char temp[32]
+    stack_var char temp[CMDAPI_MAX_PARAM_LEN]
 
     if ( find_string(cmd,"'='",1) )
     {
@@ -149,7 +149,7 @@ define_function integer cmdapi_ParseCommand(char cmd[], char separator[],
         {
             temp = cmd;
             CLEAR_BUFFER cmd;
-            if (LENGTH_STRING(temp) < 32)
+            if (LENGTH_STRING(temp) < CMDAPI_MAX_PARAM_LEN)
             {
                 params.param[p] = temp;
                 params.count++;
@@ -158,7 +158,7 @@ define_function integer cmdapi_ParseCommand(char cmd[], char separator[],
         else
         {
             SET_LENGTH_STRING(temp, LENGTH_STRING(temp)-1); // Remove ':'
-            if(LENGTH_STRING(temp) < 32)
+            if(LENGTH_STRING(temp) < CMDAPI_MAX_PARAM_LEN)
             {
                 params.param[p] = temp;
                 params.count++;

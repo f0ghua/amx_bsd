@@ -333,7 +333,7 @@ define_function char[WC_MAX_STRING_SIZE*2] fnUTF8cvTPString(char cData[])
 define_function fnProcessStrFromDev(char sReplyArray[])
 {
     STACK_VAR integer v
-    STACK_VAR char temp[32];
+    STACK_VAR char temp[64];
 
     if ( nDebug )
         cmdapi_NetHex(0, "ITOA(__LINE__), 'pptPlay fnProcessStrFromDev'",
@@ -367,7 +367,7 @@ define_function fnProcessStrFromDev(char sReplyArray[])
             SET_LENGTH_STRING(temp, LENGTH_STRING(temp)-1) // Remove ';'
 
             REMOVE_STRING(temp, ':', 1)
-            if(LENGTH_STRING(temp) < 32)
+            if(LENGTH_STRING(temp) < 64)
             {
                 if (!LENGTH_STRING(caListStr))
                     caListStr = temp
