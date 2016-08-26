@@ -234,6 +234,7 @@ define_function handleTpOnlineEvent (integer tpId)
     gTpStatus[tpId] = TP_STATUS_ON
 
     light_tpsBtnSyncStart()
+    pptPlay_tpsBtnSyncStart(tpId)
 }
 
 define_function handleTpOfflineEvent (integer tpId)

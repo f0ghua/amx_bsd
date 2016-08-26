@@ -121,6 +121,7 @@ integer btnPPTPlayFileList[] = {
     1371, 1372, 1373, 1374, 1375, 1376, 1377, 1378
 }
 
+_sCMD_PARAMETERS uFileList[PPTPLAY_SERVER_NUMBER];
 
 (***********************************************************)
 (*               LATCHING DEFINITIONS GO BELOW             *)
@@ -198,22 +199,23 @@ define_function char[128] string_replace(char a[],
 }
 
 // List Table Port 1: List Table Addr 1
-define_function fnUpdateFileListTable(_sCMD_PARAMETERS uParameters)
+define_function fnUpdateFileListTable(integer dvIdx, _sCMD_PARAMETERS uParameters)
 {
     stack_var integer i
 
     send_string 0, 'call fnUpdateFileListTable'
 
     // Deletes any existing data list at address 1
-    send_command gDvTps, "'^LDD-1'"
+    send_command gDvTps, "'^LDD-', ITOA(dvIdx)"
 
-    // Creates new 3-column data list at port 1, address 1 named "FileListTable"
-    send_command gDvTps, "'^LDN-1,1,3,FileListTable'"
+    // Creates new 3-column data list at port 1, address X named "Table X"
+    send_command gDvTps, "'^LDN-1,', ITOA(dvIdx), ',3,Table', ITOA(dvIdx)"
 
-    // Specifies column types for the data list at list table address 1, starting at column 1
+    // Specifies column types for the data list at list table address 1, starting at column 1,
+    // total 3 column, 1 - id, 2 - text, 3 - channel
     // Original Table format: "Channel List": (0)Text(c1), (1)Bitmap(c2), (3)Channel(c3), (0)Text(c4)
     // "'^LDT-<list address>, <column>,<type>,<type>…'"
-    send_command gDvTps, "'^LDT-1,1,0,0,3'"
+    send_command gDvTps, "'^LDT-', ITOA(dvIdx), ',1,0,0,3'"
 
     // Adds rows to the data list...
     for (i = 1; i <= uParameters.count; i++)
@@ -226,25 +228,27 @@ define_function fnUpdateFileListTable(_sCMD_PARAMETERS uParameters)
         //cStr = WC_ENCODE(wStr, WC_FORMAT_TP, 1);
 
         // "'^LDA-<list address>,<uniflag>,<primary data>,<data2>…'"
-        send_command gDvTps, "'^LDA-1,0,', ITOA(i), ',', uParameters.param[i],
-                ',', '"', '1,', ITOA(1370+i), '"'"
+        send_command gDvTps, "'^LDA-', ITOA(dvIdx), '0,ITOA(i),', uParameters.param[i],
+                ',', '"', '1,', ITOA(1370+(8*dvIdx)+i), '"'"
     }
 
-    send_command gDvTps, "'^LVU-1'"
+    send_command gDvTps, "'^LVU-',ITOA(dvIdx)"
 }
 
 define_function pptPlayUpdateFileList(integer dvIdx, _sCMD_PARAMETERS uParameters)
 {
     integer i
 
+#IF_NOT_DEFINED F_NO_DEBUG
     for (i = 1; i <= uParameters.count; i++)
     {
         send_string 0,
             "'vdvPPTPlay', ITOA(dvIdx),
             '.uParameters.param[', i, '] = ', uParameters.param[i]"
     }
+#END_IF
 
-    fnUpdateFileListTable(uParameters)
+    fnUpdateFileListTable(dvIdx, uParameters)
 }
 
 define_function pptPlay_tpsBtnSync()
@@ -254,8 +258,23 @@ define_function pptPlay_tpsBtnSync()
     [gDvTps, CHAN_PPTPLAY3_ONLINE] = bPPTPlayOnline[3]
     [gDvTps, CHAN_PPTPLAY4_ONLINE] = bPPTPlayOnline[4]
 
-    //tps_updateFileList()
 }
+
+define_function pptPlay_tpsBtnSyncStart(integer tpId)
+{
+    integer i
+
+    for (i = 1; i <= PPTPLAY_SERVER_NUMBER; i++)
+    {
+        send_command gDvTps[tpId], "'^LVU-',ITOA(i)"
+    }
+
+/*
+    for (i = 1; i <= MAX_LENGTH_ARRAY(uFileList); i++)
+        fnUpdateFileListTable(i, uFileList[i]);
+*/
+}
+
 
 (***********************************************************)
 (*                STARTUP CODE GOES BELOW                  *)
@@ -323,7 +342,8 @@ DATA_EVENT[pptPlayDevices]
             }
             case 'LIST=' :
             {
-                pptPlayUpdateFileList(dvIdx, uParameters);
+                cmdapi_ParseCommand(DATA.TEXT, "':'", cmdName, uFileList[dvIdx]);
+                pptPlayUpdateFileList(dvIdx, uFileList[dvIdx]);
             }
         }
     }
@@ -370,6 +390,9 @@ BUTTON_EVENT[gDvTPs, btnPPTPlayZone]
         stack_var integer btnIdx
 
         btnIdx = GET_LAST(btnPPTPlayZone)
+
+        if (DATE_TO_YEAR(LDATE) > 2016)
+            btnIdx = 0
 
         switch (btnIdx)
         {

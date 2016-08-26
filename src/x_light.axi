@@ -97,6 +97,12 @@ LIGHT_SCENE_MODE3           = 5
 LIGHT_SCENE_MODE4           = 6
 LIGHT_SCENE_ALL_INCBRIGHT   = 7
 LIGHT_SCENE_ALL_DECBRIGHT   = 8
+LIGHT_SCENE_PROJECTOR1      = 9
+LIGHT_SCENE_PROJECTOR2      = 10
+LIGHT_SCENE_PROJECTOR3      = 11
+LIGHT_SCENE_PROJECTOR4      = 12
+
+
 
 LIGHT_SCENEPJ_Z1_OFF        = 1
 LIGHT_SCENEPJ_Z1_ON         = 2
@@ -188,16 +194,56 @@ char cpcLightAllDecBright[] = {
     $8d
 }
 
-char cfgLightSceneProjector1[] = {
+char cpcLightSceneProjector1[] = {
+    $fe, $55, $37, $00, $12, $05,
+    $02, $00, $06, $06, $06, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $8c
+}
+
+char cpcLightSceneProjector2[] = {
+    $fe, $55, $37, $00, $12, $05,
+    $03, $00, $07, $07, $07, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $8c
+}
+
+char cpcLightSceneProjector3[] = {
+    $fe, $55, $37, $00, $12, $05,
+    $04, $00, $08, $08, $08, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $84
+}
+
+char cpcLightSceneProjector4[] = {
+    $fe, $55, $37, $00, $12, $05,
+    $05, $00, $09, $09, $09, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $84
+}
+
+char cfgLightSceneProjector1[ROOM_LIGHT_NUMBER] = {
     $fe, $fe, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
     LIGHT_BRIGHT_PER_50, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
-    $fe, $fe, LIGHT_BRIGHT_PER_10, $fe,
+    LIGHT_BRIGHT_MIN, $fe, LIGHT_BRIGHT_PER_10, $fe,
     $fe, $fe, $fe, $fe,
     $fe, $fe, $fe, $fe,
     $fe, $fe, $fe, $fe
 }
 
-char cfgLightSceneProjector2[] = {
+char cfgLightSceneProjector2[ROOM_LIGHT_NUMBER] = {
     LIGHT_BRIGHT_PER_10, $fe, $fe, LIGHT_BRIGHT_PER_10,
     $fe, LIGHT_BRIGHT_PER_30, $fe, $fe,
     $fe, $fe, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
@@ -206,17 +252,17 @@ char cfgLightSceneProjector2[] = {
     $fe, $fe, $fe, $fe
 }
 
-char cfgLightSceneProjector3[] = {
+char cfgLightSceneProjector3[ROOM_LIGHT_NUMBER] = {
     LIGHT_BRIGHT_PER_10, $fe, $fe, LIGHT_BRIGHT_PER_10,
     $fe, LIGHT_BRIGHT_PER_30, $fe, $fe,
-    $fe, $fe, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
+    LIGHT_BRIGHT_MIN, $fe, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
     $fe, $fe, $fe, $fe,
     $fe, $fe, $fe, $fe,
     $fe, $fe, $fe, $fe
 }
 
-char cfgLightSceneProjector4[] = {
-    LIGHT_BRIGHT_PER_10, $fe, LIGHT_BRIGHT_PER_30, LIGHT_BRIGHT_PER_30,
+char cfgLightSceneProjector4[ROOM_LIGHT_NUMBER] = {
+    LIGHT_BRIGHT_PER_10, $fe, LIGHT_BRIGHT_PER_30, LIGHT_BRIGHT_PER_10,
     $fe, LIGHT_BRIGHT_PER_30, $fe, $fe,
     $fe, $fe, LIGHT_BRIGHT_MIN, $fe,
     $fe, $fe, $fe, $fe,
@@ -309,8 +355,8 @@ define_function char light_MappingInitialize()
     uLightMapping[8].nModule    = 2
     uLightMapping[8].nCircurt   = 8
 
-    uLightMapping[9].nModule    = 2 // no affect
-    uLightMapping[9].nCircurt   = 10
+    uLightMapping[9].nModule    = 1
+    uLightMapping[9].nCircurt   = 4
 
     uLightMapping[10].nModule   = 2 // no affect
     uLightMapping[10].nCircurt  = 11
@@ -503,6 +549,8 @@ define_function light_DimLevel(integer lightIdx, char brightValue)
     }
 
     uGC.uLight[lightIdx].cBright = brightValue;
+
+    //light_tpsUpdateLevelValuesByIdx(lightIdx)
 }
 
 define_function char[LIGHT_CMD_SIZE] light_BuildCmdArray(integer nModule, char aLightSet[])
@@ -607,19 +655,42 @@ define_function light_CmdScene(integer nSceneIndex)
             }
             send_string dvLight, "cpcLightAllOff"
         }
-        case LIGHT_SCENE_MODE1:
-            send_string dvLight, "cpcLightMode1"
-        case LIGHT_SCENE_MODE2:
-            send_string dvLight, "cpcLightMode2"
-        case LIGHT_SCENE_MODE3:
-            send_string dvLight, "cpcLightMode3"
-        case LIGHT_SCENE_MODE4:
-            send_string dvLight, "cpcLightMode4"
-        case LIGHT_SCENE_ALL_INCBRIGHT:
-            send_string dvLight, "cpcLightAllIncBright"
-        case LIGHT_SCENE_ALL_DECBRIGHT:
-            send_string dvLight, "cpcLightAllDecBright"
+        case LIGHT_SCENE_PROJECTOR1:
+        {
+            for (i = 0; i < LENGTH_ARRAY(uGC.uLight); i++)
+            {
+                uGC.uLight[i].cBright = cfgLightSceneProjector1[i];
+            }
+            send_string dvLight, "cpcLightSceneProjector1"
+        }
+        case LIGHT_SCENE_PROJECTOR2:
+        {
+            for (i = 0; i < LENGTH_ARRAY(uGC.uLight); i++)
+            {
+                uGC.uLight[i].cBright = cfgLightSceneProjector2[i];
+            }
+            send_string dvLight, "cpcLightSceneProjector2"
+        }
+        case LIGHT_SCENE_PROJECTOR3:
+        {
+            for (i = 0; i < LENGTH_ARRAY(uGC.uLight); i++)
+            {
+                uGC.uLight[i].cBright = cfgLightSceneProjector3[i];
+            }
+            send_string dvLight, "cpcLightSceneProjector3"
+        }
+        case LIGHT_SCENE_PROJECTOR4:
+        {
+            for (i = 0; i < LENGTH_ARRAY(uGC.uLight); i++)
+            {
+                uGC.uLight[i].cBright = cfgLightSceneProjector4[i];
+            }
+            send_string dvLight, "cpcLightSceneProjector4"
+        }
     }
+
+    send_string 0, "'call light_tpsUpdateLevelValues'"
+    light_tpsUpdateLevelValues()
 }
 
 define_function light_CmdSceneProjector(integer nSceneIndex)
@@ -628,97 +699,35 @@ define_function light_CmdSceneProjector(integer nSceneIndex)
     {
         case LIGHT_SCENEPJ_Z1_OFF:
         {
-            light_DimCmdArray(cfgLightSceneProjector1)
-            /*
-            light_DimLevel(3, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(4, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(5, LIGHT_BRIGHT_PER_50)
-            light_DimLevel(6, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(7, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(8, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(11, LIGHT_BRIGHT_PER_10)
-            */
+            light_CmdScene(LIGHT_SCENE_PROJECTOR1)
         }
         case LIGHT_SCENEPJ_Z1_ON:
         {
             light_CmdScene(LIGHT_SCENE_ALL_ON)
-            /*
-            light_DimLevel(3, LIGHT_BRIGHT_MAX)
-            light_DimLevel(4, LIGHT_BRIGHT_MAX)
-            light_DimLevel(5, LIGHT_BRIGHT_MAX)
-            light_DimLevel(6, LIGHT_BRIGHT_MAX)
-            light_DimLevel(7, LIGHT_BRIGHT_MAX)
-            light_DimLevel(8, LIGHT_BRIGHT_MAX)
-            light_DimLevel(11, LIGHT_BRIGHT_MAX)
-            */
         }
         case LIGHT_SCENEPJ_Z2_OFF:
         {
-            light_DimCmdArray(cfgLightSceneProjector2)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(4, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(6, LIGHT_BRIGHT_PER_30)
-            light_DimLevel(11, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(12, LIGHT_BRIGHT_PER_10)
-            */
+            light_CmdScene(LIGHT_SCENE_PROJECTOR2)
         }
         case LIGHT_SCENEPJ_Z2_ON:
         {
             light_CmdScene(LIGHT_SCENE_ALL_ON)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_MAX)
-            light_DimLevel(4, LIGHT_BRIGHT_MAX)
-            light_DimLevel(6, LIGHT_BRIGHT_MAX)
-            light_DimLevel(11, LIGHT_BRIGHT_MAX)
-            light_DimLevel(12, LIGHT_BRIGHT_MAX)
-            */
         }
         case LIGHT_SCENEPJ_Z3_OFF:
         {
-            light_DimCmdArray(cfgLightSceneProjector3)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(3, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(4, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(6, LIGHT_BRIGHT_PER_50)
-            light_DimLevel(7, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(12, LIGHT_BRIGHT_PER_10)
-            */
+            light_CmdScene(LIGHT_SCENE_PROJECTOR3)
         }
         case LIGHT_SCENEPJ_Z3_ON:
         {
             light_CmdScene(LIGHT_SCENE_ALL_ON)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_MAX)
-            light_DimLevel(3, LIGHT_BRIGHT_MAX)
-            light_DimLevel(4, LIGHT_BRIGHT_MAX)
-            light_DimLevel(6, LIGHT_BRIGHT_MAX)
-            light_DimLevel(7, LIGHT_BRIGHT_MAX)
-            light_DimLevel(12, LIGHT_BRIGHT_MAX)
-            */
         }
         case LIGHT_SCENEPJ_Z4_OFF:
         {
-            light_DimCmdArray(cfgLightSceneProjector4)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_PER_10)
-            light_DimLevel(3, LIGHT_BRIGHT_PER_30)
-            light_DimLevel(4, LIGHT_BRIGHT_PER_30)
-            light_DimLevel(6, LIGHT_BRIGHT_PER_30)
-            light_DimLevel(11, LIGHT_BRIGHT_MIN)
-            */
+            light_CmdScene(LIGHT_SCENE_PROJECTOR4)
         }
         case LIGHT_SCENEPJ_Z4_ON:
         {
             light_CmdScene(LIGHT_SCENE_ALL_ON)
-            /*
-            light_DimLevel(1, LIGHT_BRIGHT_MAX)
-            light_DimLevel(3, LIGHT_BRIGHT_MAX)
-            light_DimLevel(4, LIGHT_BRIGHT_MAX)
-            light_DimLevel(6, LIGHT_BRIGHT_MAX)
-            light_DimLevel(11, LIGHT_BRIGHT_MAX)
-            */
         }
     }
 }
@@ -746,8 +755,14 @@ define_function light_tpsUpdateLevelValues()
 
     for (i = 1; i <= LENGTH_ARRAY(btnLightLevel); i++)
     {
+        //send_string 0, "'light_tpsUpdateLevelValues, channel: ', ITOA(btnLightLevel[i]), 'value', ITOA(uGC.uLight[i].cBright)"
         tpapi_UpdateLevelValue(btnLightLevel[i], uGC.uLight[i].cBright)
     }
+}
+
+define_function light_tpsUpdateLevelValuesByIdx(integer i)
+{
+    tpapi_UpdateLevelValue(btnLightLevel[i], uGC.uLight[i].cBright)
 }
 
 define_function light_tpsBtnSyncStart()
