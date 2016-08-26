@@ -209,7 +209,7 @@ define_function fnUpdateFileListTable(integer dvIdx, _sCMD_PARAMETERS uParameter
     send_command gDvTps, "'^LDD-', ITOA(dvIdx)"
 
     // Creates new 3-column data list at port 1, address X named "Table X"
-    send_command gDvTps, "'^LDN-1,', ITOA(dvIdx), ',3,Table', ITOA(dvIdx)"
+    send_command gDvTps, "'^LDN-1,', ITOA(dvIdx), ',3,Table ', ITOA(dvIdx)"
 
     // Specifies column types for the data list at list table address 1, starting at column 1,
     // total 3 column, 1 - id, 2 - text, 3 - channel
@@ -228,7 +228,7 @@ define_function fnUpdateFileListTable(integer dvIdx, _sCMD_PARAMETERS uParameter
         //cStr = WC_ENCODE(wStr, WC_FORMAT_TP, 1);
 
         // "'^LDA-<list address>,<uniflag>,<primary data>,<data2>…'"
-        send_command gDvTps, "'^LDA-', ITOA(dvIdx), '0,ITOA(i),', uParameters.param[i],
+        send_command gDvTps, "'^LDA-', ITOA(dvIdx), ',0,', ITOA(i), ',', uParameters.param[i],
                 ',', '"', '1,', ITOA(1370+(8*dvIdx)+i), '"'"
     }
 
