@@ -102,8 +102,6 @@ LIGHT_SCENE_PROJECTOR2      = 10
 LIGHT_SCENE_PROJECTOR3      = 11
 LIGHT_SCENE_PROJECTOR4      = 12
 
-
-
 LIGHT_SCENEPJ_Z1_OFF        = 1
 LIGHT_SCENEPJ_Z1_ON         = 2
 LIGHT_SCENEPJ_Z2_OFF        = 3
@@ -234,6 +232,17 @@ char cpcLightSceneProjector4[] = {
     $84
 }
 
+/* 10 percent bright of light 4 */
+char cpcLightSceneProjector4_per10[] = {
+    $fe, $55, $37, $00, $12, $04,
+    $05, $00, $09, $09, $0a, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd, $fd,
+    $86
+}
+
 char cfgLightSceneProjector1[ROOM_LIGHT_NUMBER] = {
     $fe, $fe, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
     LIGHT_BRIGHT_PER_50, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10, LIGHT_BRIGHT_PER_10,
@@ -269,7 +278,6 @@ char cfgLightSceneProjector4[ROOM_LIGHT_NUMBER] = {
     $fe, $fe, $fe, $fe,
     $fe, $fe, $fe, $fe
 }
-
 
 (***********************************************************)
 (*              DATA TYPE DEFINITIONS GO BELOW             *)
@@ -550,7 +558,12 @@ define_function light_DimLevel(integer lightIdx, char brightValue)
 
     uGC.uLight[lightIdx].cBright = brightValue;
 
-    //light_tpsUpdateLevelValuesByIdx(lightIdx)
+}
+
+define_function light_DimLevel_TPsUpdate(integer lightIdx, char brightValue)
+{
+    light_DimLevel(lightIdxm, brightValue)
+    light_tpsUpdateLevelValuesByIdx(lightIdx)
 }
 
 define_function char[LIGHT_CMD_SIZE] light_BuildCmdArray(integer nModule, char aLightSet[])
@@ -689,7 +702,7 @@ define_function light_CmdScene(integer nSceneIndex)
         }
     }
 
-    send_string 0, "'call light_tpsUpdateLevelValues'"
+    //send_string 0, "'call light_tpsUpdateLevelValues'"
     light_tpsUpdateLevelValues()
 }
 
@@ -876,11 +889,11 @@ BUTTON_EVENT[gDvTps, btnLight]
 
         if (light_GetStatus(i))
         {
-            light_DimLevel(i, LIGHT_BRIGHT_MIN)
+            light_DimLevel_TPsUpdate(i, LIGHT_BRIGHT_MIN)
         }
         else
         {
-            light_DimLevel(i, LIGHT_BRIGHT_MAX)
+            light_DimLevel_TPsUpdate(i, LIGHT_BRIGHT_MAX)
         }
     }
 }
